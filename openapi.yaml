@@ -1,0 +1,211 @@
+openapi: "3.1.0"
+info:
+  title: Planning Poker API
+  version: "1.0.0"
+servers:
+  - url: http://localhost:8080
+paths:
+  /login:
+    post:
+      summary: Log in
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "302":
+          description: Redirect on success
+  /register:
+    post:
+      summary: Register a new user (default role: voter)
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "302":
+          description: Redirect to login
+  /rooms:
+    post:
+      summary: Create a room (admin only)
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        "302":
+          description: Redirect to index
+  /room/{id}/vote:
+    post:
+      summary: Cast a vote (voter only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                value:
+                  type: string
+      responses:
+        "302":
+          description: Redirect back to room
+  /room/{id}/reveal:
+    post:
+      summary: Reveal or reset votes (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum:
+                    - reveal
+                    - reset
+      responses:
+        "302":
+          description: Redirect back to room
+  /admin/users:
+    get:
+      summary: List users (admin only)
+    post:
+      summary: Create user (admin only)
+  /room/{id}/votes:
+    get:
+      summary: Get HTML fragment of votes for a room
+  /room/{id}/stream:
+    get:
+      summary: SSE stream for room updates
+components: {}
+openapi: 3.0.3
+info:
+  title: Planning Poker API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+paths:
+  /login:
+    post:
+      summary: Log in
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '302': { description: Redirect on success }
+  /register:
+    post:
+      summary: Register a new user (default role: voter)
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        '302': { description: Redirect to login }
+  /rooms:
+    post:
+      summary: Create a room (admin only)
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+      responses:
+        '302': { description: Redirect to index }
+  /room/{id}/vote:
+    post:
+      summary: Cast a vote (voter only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                value: { type: string }
+      responses:
+        '302': { description: Redirect back to room }
+  /room/{id}/reveal:
+    post:
+      summary: Reveal or reset votes (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                action: { type: string, enum: [reveal, reset] }
+      responses:
+        '302': { description: Redirect back to room }
+  /admin/users:
+    get:
+      summary: List users (admin only)
+    post:
+      summary: Create user (admin only)
+  /room/{id}/votes:
+    get:
+      summary: Get HTML fragment of votes for a room
+  /room/{id}/stream:
+    get:
+      summary: SSE stream for room updates
+security: []

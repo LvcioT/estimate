@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Planning Poker</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://unpkg.com/htmx.org@1.11.0"></script>
+  </head>
+<body>
+  <header>
+    <h1>Planning Poker</h1>
+    {{if .User}}<div>Welcome, {{.User}} | <a href="/logout">Logout</a></div>{{else}}<a href="/login">Login</a>{{end}}
+  </header>
+  <main>
+    <section>
+      <h2>Rooms</h2>
+      {{if .User}}
+      <div>
+        <!-- admin-only create room form (will be ignored server-side if not admin) -->
+        <form hx-post="/rooms" hx-target="#rooms-list" hx-swap="outerHTML">
+          <label>Room name <input name="name" /></label>
+          <button type="submit">Create room</button>
+        </form>
+      </div>
+      {{end}}
+      <div id="rooms-list">
+        {{template "rooms_partial.html" .}}
+      </div>
+    </section>
+  </main>
+</body>
+</html>

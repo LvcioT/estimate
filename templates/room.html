@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Room - {{.Room}}</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://unpkg.com/htmx.org@1.11.0"></script>
+</head>
+<body>
+  <header>
+    <h1>{{.Room}}</h1>
+    <a href="/">Back</a>
+  </header>
+  <main>
+    {{if eq .Role "voter"}}
+    <form method="POST" action="/room/{{.Room}}/vote" hx-post="/room/{{.Room}}/vote" hx-swap="none">
+      <label>Card:
+        <select name="value">
+          <option>0</option>
+          <option>1</option>
+          <option>2</option>
+          <option>3</option>
+          <option>5</option>
+          <option>8</option>
+          <option>13</option>
+          <option>20</option>
+        </select>
+      </label>
+      <button type="submit">Vote</button>
+    </form>
+    {{end}}
+
+    <section>
+      <h2>Votes</h2>
+      <div id="votes-list" hx-get="/room/{{.Room}}/votes" hx-swap="outerHTML">
+        {{template "votes_partial.html" .}}
+      </div>
+      <script>
+        (function(){
+          const room = "{{.Room}}";
+          const streamUrl = '/room/' + encodeURIComponent(room) + '/stream';
+          const votesUrl = '/room/' + encodeURIComponent(room) + '/votes';
+          const es = new EventSource(streamUrl);
+          es.onmessage = function(e) {
+            // request latest votes partial
+            fetch(votesUrl).then(r=>r.text()).then(html => {
+              document.getElementById('votes-list').outerHTML = html;
+            }).catch(()=>{});
+          };
+          es.onerror = function(){ /* ignore */ };
+        })();
+      </script>
+    </section>
+
+    {{if eq .Role "admin"}}
+    <form method="POST" action="/room/{{.Room}}/reveal">
+      <button name="action" value="reveal">Reveal</button>
+      <button name="action" value="reset">Reset</button>
+    </form>
+    {{end}}
+  </main>
+</body>
+</html>

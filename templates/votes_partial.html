@@ -1,0 +1,8 @@
+{{/* votes_partial */}}
+<ul>
+  {{range .Votes}}
+    <li>{{.User}}: {{if $.Revealed}}{{.Value}}{{else}}***{{end}}</li>
+  {{else}}
+    <li>No votes yet</li>
+  {{end}}
+</ul>

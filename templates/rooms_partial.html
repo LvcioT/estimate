@@ -1,0 +1,8 @@
+{{/* rooms_partial */}}
+<ul>
+  {{range .Rooms}}
+    <li><a href="/room/{{.ID}}">{{.Name}}</a></li>
+  {{else}}
+    <li>No rooms yet</li>
+  {{end}}
+</ul>

@@ -1,0 +1,5 @@
+body { font-family: system-ui, sans-serif; margin: 1rem; }
+header { display:flex; justify-content:space-between; align-items:center; }
+main { margin-top: 1rem }
+form label { display:block; margin: .5rem 0 }
+.error { color: red }
