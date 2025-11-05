@@ -1,61 +1,82 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>Admin - Users</title>
-  <link rel="stylesheet" href="/static/style.css" />
-</head>
-<body>
-  <header>
-    <h1>Users</h1>
-    <a href="/">Back</a>
-  </header>
-  <main>
-    <section>
-      <h2>Create user</h2>
-      <form method="POST" action="/admin/users/create">
-        <label>Username <input name="username" /></label>
-        <label>Password <input name="password" type="password" /></label>
-        <label>Role
-          <select name="role">
-            <option value="voter">Voter</option>
-            <option value="observer">Observer</option>
-            <option value="admin">Admin</option>
-          </select>
-        </label>
-        <button type="submit">Create</button>
-      </form>
-    </section>
+{{ template "layout.html" . }}
 
-    <section>
-      <h2>Existing users</h2>
-      <table>
-        <tr><th>ID</th><th>Username</th><th>Role</th><th>Actions</th></tr>
-        {{range .Users}}
-        <tr>
-          <td>{{.ID}}</td>
-          <td>{{.Username}}</td>
-          <td>
-            <form method="POST" action="/admin/users/role" style="display:inline">
-              <input type="hidden" name="id" value="{{.ID}}" />
-              <select name="role">
-                <option value="voter" {{if eq .Role "voter"}}selected{{end}}>Voter</option>
-                <option value="observer" {{if eq .Role "observer"}}selected{{end}}>Observer</option>
-                <option value="admin" {{if eq .Role "admin"}}selected{{end}}>Admin</option>
-              </select>
-              <button type="submit">Change</button>
-            </form>
-          </td>
-          <td>
-            <form method="POST" action="/admin/users/delete" onsubmit="return confirm('Delete user?')">
-              <input type="hidden" name="id" value="{{.ID}}" />
-              <button type="submit">Delete</button>
-            </form>
-          </td>
-        </tr>
-        {{end}}
-      </table>
-    </section>
-  </main>
-</body>
-</html>
+{{ define "content" }}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">Create User</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/admin/users/create" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="role" class="form-label">Role</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="voter">Voter</option>
+                            <option value="observer">Observer</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Create User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Existing Users</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{range .Users}}
+                            <tr>
+                                <td>{{.ID}}</td>
+                                <td>{{.Username}}</td>
+                                <td>
+                                    <form method="POST" action="/admin/users/role" class="d-flex gap-2">
+                                        <input type="hidden" name="id" value="{{.ID}}" />
+                                        <select class="form-select form-select-sm" name="role">
+                                            <option value="voter" {{if eq .Role "voter"}}selected{{end}}>Voter</option>
+                                            <option value="observer" {{if eq .Role "observer"}}selected{{end}}>Observer</option>
+                                            <option value="admin" {{if eq .Role "admin"}}selected{{end}}>Admin</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">Update</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form method="POST" action="/admin/users/delete" class="d-inline" 
+                                          onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                        <input type="hidden" name="id" value="{{.ID}}" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }}

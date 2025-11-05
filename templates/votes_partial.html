@@ -1,8 +1,24 @@
 {{/* votes_partial */}}
-<ul>
-  {{range .Votes}}
-    <li>{{.User}}: {{if $.Revealed}}{{.Value}}{{else}}***{{end}}</li>
-  {{else}}
-    <li>No votes yet</li>
-  {{end}}
-</ul>
+<div class="list-group">
+    {{range .Votes}}
+    <div class="list-group-item d-flex justify-content-between align-items-center">
+        <span>{{.User}}</span>
+        <span class="badge {{if $.Revealed}}bg-success{{else}}bg-secondary{{end}} rounded-pill">
+            {{if $.Revealed}}{{.Value}}{{else}}•••{{end}}
+        </span>
+    </div>
+    {{else}}
+    <div class="list-group-item text-center text-muted">
+        No votes yet
+    </div>
+    {{end}}
+
+    {{if and (gt (len .Votes) 0) $.Revealed}}
+    <div class="list-group-item bg-light">
+        <div class="d-flex justify-content-between align-items-center">
+            <strong>Average:</strong>
+            <span class="badge bg-primary rounded-pill">{{.Average}}</span>
+        </div>
+    </div>
+    {{end}}
+</div>

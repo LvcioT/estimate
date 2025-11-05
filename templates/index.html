@@ -1,32 +1,46 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>Planning Poker</title>
-  <link rel="stylesheet" href="/static/style.css" />
-  <script src="https://unpkg.com/htmx.org@1.11.0"></script>
-  </head>
-<body>
-  <header>
-    <h1>Planning Poker</h1>
-    {{if .User}}<div>Welcome, {{.User}} | <a href="/logout">Logout</a></div>{{else}}<a href="/login">Login</a>{{end}}
-  </header>
-  <main>
-    <section>
-      <h2>Rooms</h2>
-      {{if .User}}
-      <div>
-        <!-- admin-only create room form (will be ignored server-side if not admin) -->
-        <form hx-post="/rooms" hx-target="#rooms-list" hx-swap="outerHTML">
-          <label>Room name <input name="name" /></label>
-          <button type="submit">Create room</button>
-        </form>
-      </div>
-      {{end}}
-      <div id="rooms-list">
-        {{template "rooms_partial.html" .}}
-      </div>
-    </section>
-  </main>
-</body>
-</html>
+{{ template "layout.html" . }}
+
+{{ define "content" }}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Rooms</h2>
+            {{if and .User .IsAdmin}}
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createRoomModal">
+                Create Room
+            </button>
+            {{end}}
+        </div>
+
+        <div id="rooms-list">
+            {{template "rooms_partial.html" .}}
+        </div>
+    </div>
+</div>
+
+{{if and .User .IsAdmin}}
+<!-- Create Room Modal -->
+<div class="modal fade" id="createRoomModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Room</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form hx-post="/rooms" hx-target="#rooms-list" hx-swap="outerHTML">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="roomName" class="form-label">Room Name</label>
+                        <input type="text" class="form-control" id="roomName" name="name" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{{end}}
+{{ end }}

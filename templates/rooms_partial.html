@@ -1,8 +1,13 @@
 {{/* rooms_partial */}}
-<ul>
-  {{range .Rooms}}
-    <li><a href="/room/{{.ID}}">{{.Name}}</a></li>
-  {{else}}
-    <li>No rooms yet</li>
-  {{end}}
-</ul>
+<div class="list-group">
+    {{range .Rooms}}
+    <a href="/room/{{.ID}}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        {{.Name}}
+        <span class="badge bg-primary rounded-pill">{{.ActiveVoters}} voters</span>
+    </a>
+    {{else}}
+    <div class="list-group-item text-center text-muted">
+        No rooms available
+    </div>
+    {{end}}
+</div>
