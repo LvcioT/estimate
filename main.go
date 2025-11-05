@@ -23,13 +23,16 @@ var content embed.FS
 //go:embed openapi.yaml
 var openapiSpec string
 
-var tpl *template.Template
-var db *sql.DB
-var sCookie *securecookie.SecureCookie
+var (
+	tpl     *template.Template
+	db      *sql.DB
+	sCookie *securecookie.SecureCookie
+	cfg     *Config
 
-// SSE subscribers per room
-var subsMu sync.Mutex
-var subs = map[string]map[chan string]struct{}{}
+	// SSE subscribers per room
+	subsMu sync.Mutex
+	subs   = map[string]map[chan string]struct{}{}
+)
 
 func subscribe(room string) chan string {
 	ch := make(chan string, 1)
@@ -64,7 +67,15 @@ func publish(room, msg string) {
 
 func main() {
 	var err error
-	db, err = sql.Open("sqlite3", "file:estimate.db?_foreign_keys=on")
+
+	// Load configuration
+	cfg = LoadConfig()
+
+	// Set Gin mode
+	gin.SetMode(cfg.GinMode)
+
+	// Initialize database
+	db, err = sql.Open("sqlite3", fmt.Sprintf("file:%s?_foreign_keys=on", cfg.DBPath))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,8 +83,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sCookie = securecookie.New(securecookie.GenerateRandomKey(32), securecookie.GenerateRandomKey(32))
+	// Initialize secure cookie with session secret from config
+	hashKey := []byte(cfg.SessionSecret)
+	if len(hashKey) < 32 {
+		// Pad the key if it's too short
+		newKey := make([]byte, 32)
+		copy(newKey, hashKey)
+		hashKey = newKey
+	}
+	sCookie = securecookie.New(hashKey, nil) // We only need the hash key for cookies
 
+	// Parse templates
 	tpl = template.Must(template.ParseFS(content, "templates/*.html"))
 
 	r := gin.Default()
@@ -105,8 +125,8 @@ func main() {
 		tpl.ExecuteTemplate(c.Writer, "docs.html", nil)
 	})
 
-	fmt.Println("Listening on http://localhost:8080")
-	r.Run()
+	log.Printf("Server starting on http://localhost:%s in %s mode", cfg.Port, cfg.GinMode)
+	r.Run(":" + cfg.Port)
 }
 
 func migrate(db *sql.DB) error {
@@ -125,13 +145,14 @@ func migrate(db *sql.DB) error {
 	row := db.QueryRow(`SELECT COUNT(1) FROM users WHERE role='admin'`)
 	_ = row.Scan(&cnt)
 	if cnt == 0 {
-		// hash default password
-		hash, _ := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost)
-		_, err := db.Exec(`INSERT INTO users(username,password,role) VALUES(?,?,?)`, "admin", string(hash), "admin")
+		// hash default admin password from config
+		hash, _ := bcrypt.GenerateFromPassword([]byte(cfg.DefaultAdminPass), cfg.HashCost)
+		_, err := db.Exec(`INSERT INTO users(username,password,role) VALUES(?,?,?)`,
+			cfg.DefaultAdminUser, string(hash), "admin")
 		if err != nil {
 			return err
 		}
-		fmt.Println("Created default admin: username=admin password=admin")
+		log.Printf("Created default admin user: %s", cfg.DefaultAdminUser)
 	}
 	return nil
 }
@@ -384,7 +405,7 @@ func doRegister(c *gin.Context) {
 		tpl.ExecuteTemplate(c.Writer, "register.html", gin.H{"Error": "invalid role"})
 		return
 	}
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), cfg.HashCost)
 	if err != nil {
 		c.String(500, err.Error())
 		return
