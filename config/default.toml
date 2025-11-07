@@ -1,0 +1,6 @@
+[gin]
+port = 8080
+debug = true
+
+[sqlite]
+file = "data/database.db"
