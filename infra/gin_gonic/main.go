@@ -6,7 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var router *gin.Engine = gin.Default()
+var router *gin.Engine
+
+func Init() error {
+	router = gin.Default()
+	return nil
+}
 
 func GetRouter() *gin.Engine {
 	return router
