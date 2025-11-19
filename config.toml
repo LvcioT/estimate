@@ -1,3 +1,7 @@
+[app]
+name = "Estimate Planning Poker"
+version = "0.0.1"
+
 [gin]
 port = 8080
 debug = true

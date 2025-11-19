@@ -11,39 +11,56 @@ import (
 )
 
 // Path to the default configuration TOML file
-const defaultConfigFilePath = "config/default.toml"
+const defaultConfigFilePath = "config.toml"
 
-var config AppConfig
+var config Config
 
-func GetConfig() AppConfig {
+func init() {
+	err := LoadConfig()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func GetConfig() Config {
 	return config
 }
 
 func LoadConfig() error {
 	err := godotenv.Load()
 	if err != nil {
-		return fmt.Errorf("cannot load config: '%w'", err)
+		return fmt.Errorf("cannot load ENV config: '%w'", err)
+	}
+
+	config, err = newConfigWithDefaults()
+	if err != nil {
+		return fmt.Errorf("cannot set config with default values: '%w'", err)
+	}
+
+	err = updateConfigFromEnv(&config)
+	if err != nil {
+		return fmt.Errorf("cannot update config from ENV: '%w'", err)
 	}
 
 	return nil
 }
 
-func newConfigWithDefaults() (AppConfig, error) {
-	var defaultConfig AppConfig
+func newConfigWithDefaults() (Config, error) {
+	var defaultConfig Config
 
 	data, err := os.ReadFile(defaultConfigFilePath)
 	if err != nil {
-		return AppConfig{}, fmt.Errorf("could not read default config file '%s': %w", defaultConfigFilePath, err)
+		return Config{}, fmt.Errorf("could not read default config file '%s': %w", defaultConfigFilePath, err)
 	}
 
 	err = toml.Unmarshal(data, &defaultConfig)
 	if err != nil {
-		return AppConfig{}, fmt.Errorf("error unmarshalling default config from '%s': %w", defaultConfigFilePath, err)
+		return Config{}, fmt.Errorf("error unmarshalling default config from '%s': %w", defaultConfigFilePath, err)
 	}
 	return defaultConfig, nil
 }
 
-func updateConfigFromEnv(cfg *AppConfig) error {
+func updateConfigFromEnv(cfg *Config) error {
 	if portStr := os.Getenv("GIN_PORT"); portStr != "" {
 		port, err := strconv.Atoi(portStr)
 		if err != nil {

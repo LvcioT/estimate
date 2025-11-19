@@ -1,9 +1,14 @@
 package config
 
 type (
-	AppConfig struct {
+	Config struct {
 		Gin    GinConfig
 		Sqlite SqliteConfig
+	}
+
+	Application struct {
+		Name    string
+		Version string
 	}
 
 	GinConfig struct {
