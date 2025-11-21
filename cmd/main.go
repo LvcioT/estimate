@@ -2,12 +2,10 @@ package main
 
 import (
 	"LvcioT/estimate/app/config"
-	"LvcioT/estimate/infra/gin_gonic"
+	httpGinApp "LvcioT/estimate/app/http_gin"
 	"LvcioT/estimate/infra/gorm_sqlite"
+	httpGinInfra "LvcioT/estimate/infra/http_gin"
 	"fmt"
-	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -29,17 +27,19 @@ func initGormSqlite(cfg config.Config) {
 }
 
 func initGin(cfg config.Config) {
-	err := gin_gonic.Init()
+	err := httpGinInfra.Init()
 	if err != nil {
 		panic(fmt.Errorf("failed to init gin: %w", err))
 	}
 
-	r := gin_gonic.GetRouter()
-	r.GET("", func(c *gin.Context) {
-		c.JSON(http.StatusOK, "pong")
-	})
+	r := httpGinInfra.GetRouter()
 
-	err = gin_gonic.StartServer(gin_gonic.Options{
+	err = httpGinApp.DeclareRoutes(r)
+	if err != nil {
+		panic(fmt.Errorf("failed to declare routes: %w", err))
+	}
+
+	err = httpGinInfra.StartServer(httpGinInfra.Options{
 		Port:  cfg.Gin.Port,
 		Debug: cfg.Gin.Debug,
 	})

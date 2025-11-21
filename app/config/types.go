@@ -2,21 +2,23 @@ package config
 
 type (
 	Config struct {
-		Gin    GinConfig
-		Sqlite SqliteConfig
+		App    Application
+		Gin    GinGonic
+		Sqlite Sqlite
 	}
 
 	Application struct {
-		Name    string
-		Version string
+		Name     string
+		FullName string `toml:"full_name"`
+		Version  string
 	}
 
-	GinConfig struct {
+	GinGonic struct {
 		Port  int
 		Debug bool
 	}
 
-	SqliteConfig struct {
+	Sqlite struct {
 		File string
 	}
 )

@@ -1,4 +1,4 @@
-package gin_gonic
+package http_gin
 
 import (
 	"fmt"
