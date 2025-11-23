@@ -1,4 +1,4 @@
-package gorm_sqlite
+package sqlite_gorm
 
 type Options struct {
 	File string
