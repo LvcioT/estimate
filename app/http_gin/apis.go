@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ApplicationInfosHandler(c *gin.Context) {
+func infosHandler(c *gin.Context) {
 	conf := config.GetConfig().App
 
 	c.JSON(200, gin.H{
