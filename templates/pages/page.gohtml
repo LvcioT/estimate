@@ -1,4 +1,6 @@
-{{template "header" . }}
-<h2>Welcome to Page {{.number}}</h2>
-<p>This is the content of Page {{.number}}.</p>
-{{template "footer"}}
+{{ define "page" }}
+    {{template "header" . }}
+    <h2>Welcome to Page {{.number}}</h2>
+    <p>This is the content of Page {{.number}}.</p>
+    {{template "footer"}}
+{{end}}
